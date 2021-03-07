@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API Sandbox</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+</head>
+<body style="overflow:scroll;">
+    <div class="container">
+        <h1 class="display-4 mb-4">Fetch API Sandbox</h1>
+        <div class="d-flex">
+            <button id="btn_text" class="btn btn-primary" style="margin-right:20px;">GetText</button>
+            <button id="btn_authors" class="btn btn-success" style="margin-right:20px;">GetAuthors</button>
+            <button id="btn_chats" class="btn btn-warning" style="margin-right:20px;">GetChatting</button>
+        </div>
+        <hr>
+        <div id="output"></div>
+         <!--form area暂时未复习好,留待下一次复习-->
+         <form id="add_post" class="mt-4" style="display:none;">
+             <div class="form-group mb-4">
+                 <input type="text" id="title" class="form-control" placeholder="title">
+             </div>
+             <div class="form-group mb-4">
+                 <textarea id="body" class="form-control" placeholder="body"></textarea>
+             </div>
+             <input type="submit" class="btn btn-secondary" value="submit">
+         </form>
+    </div>  
+    <footer style="margin-top:100vh;text-align: center;font:16px/1.5 arial;">@copyright Learn from <a href="https://www.youtube.com/watch?v=Oive66jrwBs">https://www.youtube.com/watch?v=Oive66jrwBs</a></footer>
+</body>
+<script>
+      //无需body，id需加引号，getText函数不要带括号（会执行）
+      //选取一个元素监听它
+    document.getElementById("btn_text").addEventListener('click',getText)  
+    document.getElementById("btn_authors").addEventListener('click',getAuthors)
+    document.getElementById("btn_chats").addEventListener('click',getChats)
+    document.getElementById("add_post").addEventListener('submit',addPost)
+    function getText(){
+        //获取同一目录的文件
+        fetch('text.txt') 
+         //res表示response，其实任何字符都可以表示response，Response {type: "basic", url: "http://127.0.0.1:5500/text.txt", redirected: false, status: 200, ok: true, …}
+        // .then((res)=>{console.log(res)})
+        //res.text()指把响应文本化
+        //Promise {<pending>} 文本在promise里[[PromiseResult]]: "I am louis! Who are you?"
+        // .then((res)=>{console.log(res.text())})
+        .then((res)=>{return res.text()})
+        .then((data)=>{
+            //获取id，js常做的事，document.getElementById("xxx")
+            document.getElementById("output").innerText=data
+        })
+        .catch((err)=>{console.log(err)})
+    }
+    function getAuthors(){
+        fetch('a.json')
+        //别忘了return
+        .then((res)=>{return res.json()})
+        .then((data)=>{
+            //不错，自己亲自搜索百度，然后动脑筋（指看答案）实现的
+            // data.authors.forEach(function(authors){
+            //     console.log(authors.firstName)
+            //     console.log(authors.lastName)
+            //     console.log(authors.genre)
+            // })
+
+            //使用let声明变量,使用var也不能出来变成全局变量，只是不能重复用let声明变量，注意用空字符赋值或者写其他HTML
+           let jsonList=''
+            data.authors.forEach((authors)=>{
+                //注意+=才可以连起来循环
+                  jsonList+=`
+            <ul class="list-group mb-3">    
+                <li class="list-group-item">firstName:${authors.firstName}</li>
+                <li class="list-group-item">lastName:${authors.lastName}</li>
+                <li class="list-group-item">genre:${authors.genre}</li>
+            </ul>     
+        `
+            })
+            //这个时候用innerHTML
+            document.getElementById("output").innerHTML=jsonList
+         
+        })
+    }
+    
+    function getChats(){
+        fetch('b.json')
+        .then((res)=>{return res.json()})
+        .then((data)=>{
+            let jsonList2=''
+            data.forEach((chat)=>{
+                jsonList2+=`
+                <div class="card card-body md-3">
+                    
+                    <h3>${chat.title}</h3>
+                    <p>${chat.body}</p>
+                </div>
+                `
+            })
+            document.getElementById('output').innerHTML=jsonList2
+        })
+    }
+//form area 函数addPost 暂时未复习好,留待下一次复习
+function addPost(e){
+    e.preventDefault() 
+    let title=document.getElementById('title').value
+    fetch('https://jsonplaceholder.typicode.com/posts',{
+        method:'POST',
+        headers:{
+            'Accept':'application/json,text/plain,*/*',
+            'Content-type':'application/json'
+        },
+        body:JSON.stringify({title:title,body:body})
+    })
+        .then((res)=>{return res.json()})
+        .then((data)=>{
+            console.log(data)
+        })
+}
+   
+ //default browser will report a MISTAKE:
+ //Fetch API cannot load file:///C:/Users/dell/Desktop/fetch21-3-7/text.txt. URL scheme must be "http" or "https" for CORS request.    
+
+ //SOLUTION:There are some launch params that supposedly enable file:// access in Chrome but I could never get them to work, I'm guessing they only affect XMLHttpRequest and not the newer fetch API.
+//I'd suggest just using something like live-server, which has the side benefit of automatic reloading.
+
+</script>
+</html>
